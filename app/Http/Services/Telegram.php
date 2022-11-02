@@ -18,7 +18,7 @@ class Telegram
 
     public function sendMessage($message, $chat_id)
     {
-        $result = $this->http::get($this->url.'sendMessage', [
+        $result = $this->http::connectTimeout(2)->get($this->url.'sendMessage', [
                 'chat_id' =>$chat_id,
                 'text' => $message,
                 'parse_mode' => 'HTML',
