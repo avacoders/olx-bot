@@ -36,6 +36,7 @@ class OlxService
         $counter = 1;
         foreach ($data as $item) {
             if (!$item['promotion']['top_ad'] && !Elon::find($item['id'])) {
+                Elon::create(['id' => $item['id']]);
                 $delayInMinutes = intval($counter / $rateLimitPerMinute);
                 SendApiRequest::dispatch($this->text($item))->delay(now()->addMinutes($delayInMinutes));
                 $counter++;
