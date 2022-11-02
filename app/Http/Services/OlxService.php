@@ -5,6 +5,7 @@ namespace App\Http\Services;
 use App\Models\Elon;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class OlxService
 {
@@ -42,16 +43,20 @@ class OlxService
     {
         $date = Carbon::parse($data['last_refresh_time'])->format('d M Y, H:i');
         $text = "Опубликовано $date";
-        $text .= "\n<a href='" . $data['url'] . "'><b>" . str_replace('<br>', "\n", $data['title']) . "</b></a>";
+        $text .= "\n<a href='" . $data['url'] . "'><b>" . str_replace('<br', "\n", $data['title']) . "</b></a>";
         $text .= "\nЦена: " . $this->getParam($data['params'], 'price')['label'];
         $text .= "\nКоличество комнат: " . $this->getParam($data['params'], 'number_of_rooms')['label'];
         $text .= "\nОбщая площадь: " . $this->getParam($data['params'], 'total_area')['label'];
         $text .= "\nПолзователь: " . $data['user']['name'];
-        $text .= "\nОПИСАНИЕ:\n" . str_replace('<br>', "\n", $data['description']);
+        $text .= "\nОПИСАНИЕ:\n" . str_replace('<br', "\n", $data['description']);
         if (!$data['promotion']['top_ad'] && !Elon::find($data['id']))
         {
             Elon::create(['id' => $data['id']]);
-            $this->telegram->sendMessage($text, config('bot.telegram.chat_id'));
+            $response = json_decode($this->telegram->sendMessage($text, config('bot.telegram.chat_id')), true);
+            if(!$response['ok'])
+            {
+                Log::debug($response);
+            }
 
         }
 //            dd($text);
