@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use App\Jobs\SendApiRequest;
 use App\Models\Elon;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -31,15 +32,21 @@ class OlxService
             'filter_float_price:to' => 400,
         ]);
         $data = json_decode($result->body(), true)['data'];
+        $rateLimitPerMinute = 60;
+        $counter = 1;
         foreach ($data as $item) {
-//            dd($item);
-            $this->send($item);
+            if (!$item['promotion']['top_ad'] && !Elon::find($item['id'])) {
+                $delayInMinutes = intval($counter / $rateLimitPerMinute);
+                SendApiRequest::dispatch($this->text($item))->delay(now()->addMinutes($delayInMinutes));
+                $counter++;
+            }
+
         }
 
     }
 
 
-    public function send($data)
+    public function text($data)
     {
         $date = Carbon::parse($data['last_refresh_time'])->format('d M Y, H:i');
         $text = "Опубликовано $date";
@@ -49,18 +56,7 @@ class OlxService
         $text .= "\nОбщая площадь: " . $this->getParam($data['params'], 'total_area')['label'];
         $text .= "\nПолзователь: " . $data['user']['name'];
         $text .= "\nОПИСАНИЕ:\n" . str_replace('<br', "\n", $data['description']);
-        if (!$data['promotion']['top_ad'] && !Elon::find($data['id']))
-        {
-            Elon::create(['id' => $data['id']]);
-            $response = json_decode($this->telegram->sendMessage($text, config('bot.telegram.chat_id')), true);
-            if(!$response['ok'])
-            {
-                Log::debug($response);
-            }
-
-        }
-//            dd($text);
-//        return $text;
+        return $text;
     }
 
     public function getParam($array, $key)
