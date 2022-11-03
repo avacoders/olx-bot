@@ -29,7 +29,9 @@ class OlxService
             'currency' => 'USD',
             'region_id' => 5,
             'offset' => 0,
-            'filter_float_price:to' => 400,
+            'filter_float_price:from' => 400,
+            'filter_float_price:to' => 500,
+            "filter_enum_comission[0]" => "no",
         ]);
         $data = json_decode($result->body(), true)['data'];
         $rateLimitPerMinute = 60;
