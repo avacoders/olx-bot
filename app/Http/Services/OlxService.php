@@ -29,22 +29,24 @@ class OlxService
             'currency' => 'USD',
             'region_id' => 5,
             'offset' => 0,
-            'filter_float_price:from' => 400,
+            'filter_float_price:from' => 100,
             'filter_float_price:to' => 500,
             "filter_enum_comission[0]" => "no",
         ]);
         $data = json_decode($result->body(), true)['data'];
         $rateLimitPerMinute = 60;
         $counter = 1;
+        $insert = [];
         foreach ($data as $item) {
             if (!$item['promotion']['top_ad'] && !Elon::find($item['id'])) {
-                Elon::create(['id' => $item['id']]);
+                $insert[] = ['id' => $item['id']];
                 $delayInMinutes = intval($counter / $rateLimitPerMinute);
                 SendApiRequest::dispatch($this->text($item))->delay(now()->addMinutes($delayInMinutes));
                 $counter++;
             }
 
         }
+        Elon::insert($insert);
 
     }
 
