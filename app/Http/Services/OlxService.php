@@ -39,7 +39,7 @@ class OlxService
         $insert = [];
         foreach ($data as $item) {
             if (!$item['promotion']['top_ad'] && !Elon::find($item['id'])) {
-                $insert[] = ['id' => $item['id']];
+                $insert[] = ['id' => $item['id'], 'created_at' => Carbon::now()];
                 $delayInMinutes = intval($counter / $rateLimitPerMinute);
                 SendApiRequest::dispatch($this->text($item))->delay(now()->addMinutes($delayInMinutes));
                 $counter++;
