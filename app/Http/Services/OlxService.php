@@ -31,7 +31,7 @@ class OlxService
             'district_id' => 25,
             'offset' => 0,
             'filter_float_price:from' => 100,
-            'filter_float_price:to' => 500,
+            'filter_float_price:to' => 350,
             "filter_enum_comission[0]" => "no",
         ]);
         $data = json_decode($result->body(), true)['data'];
