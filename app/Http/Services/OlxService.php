@@ -28,6 +28,7 @@ class OlxService
             'limit' => 50,
             'currency' => 'USD',
             'region_id' => 5,
+            'district_id' => 25,
             'offset' => 0,
             'filter_float_price:from' => 100,
             'filter_float_price:to' => 500,
